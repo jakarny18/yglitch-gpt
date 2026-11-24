@@ -1,0 +1,32 @@
+name: Build Windows VST3 and Standalone
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure CMake (JUCE is fetched automatically)
+        run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VST3 and Standalone
+        run: cmake --build build --config Release --parallel 2
+
+      - name: Upload compiled plugins
+        uses: actions/upload-artifact@v4
+        with:
+          name: YouGlitch-SMP-1024-Windows-x64
+          if-no-files-found: error
+          path: |
+            build/YouGlitchSMP1024_artefacts/Release/VST3/**
+            build/YouGlitchSMP1024_artefacts/Release/Standalone/**
